@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css" type="text/css">
+  <link rel="stylesheet" href="https://pingendo.com/assets/bootstrap/bootstrap-4.0.0-beta.1.css" type="text/css">
+  <script src="/src/jquery-3.2.1.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-cookie/1.4.1/jquery.cookie.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/2.0.4/socket.io.js"></script>
+  <script src="/src/codice.fiscale.js"></script>
+  <script src="/src/notification.js"></script>
+  <script src="/src/utility.js"></script>
+  <style>
+    table.table th {
+      color: #ffc107;
+    }
+  </style>
+</head>
+
+<body class="bg-dark" onload="buildCEPpage();">
+  <nav class="navbar navbar-expand-md bg-primary navbar-dark">
+    <div class="container">
+      <a class="navbar-brand text-white"><i class="fa d-inline fa-lg fa-briefcase"></i><b>&nbsp;FAHM<br></b></a>
+      <button class="navbar-toggler navbar-toggler-right" type="button" data-toggle="collapse" data-target="#navbar2SupportedContent" aria-controls="navbar2SupportedContent" aria-expanded="false"
+        aria-label="Toggle navigation"> <span class="navbar-toggler-icon"></span> </button>
+      <div class="collapse navbar-collapse text-center justify-content-end" id="navbar2SupportedContent">
+        <ul class="navbar-nav"></ul>
+        <div class="btn-group">
+          <button id="welcome_label" class="btn navbar-btn ml-2 text-white btn-secondary dropdown-toggle" data-toggle="dropdown" style="cursor: pointer">Hi! </button>
+          <div class="dropdown-menu">
+            <a class="dropdown-item" href="/doctorPage"><i class="fa d-inline fa-lg fa-user-md"></i>&nbsp;Back to home page</a>
+            <div class="dropdown-divider"></div>
+            <a class="dropdown-item" id="logout_btn" href="/logout"><i class="fa d-inline fa-lg fa-sign-out"></i>&nbsp;Log out</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </nav>
+  <div class="py-5 bg-dark">
+    <div class="container">
+      <div class="row">
+        <div class="col-md-12">
+          <h1 class="text-warning">CEP Events list</h1>
+          <h5 style="color: #ffff99">Click on the event to see the details</h5>
+          
+        </div>
+      </div>
+      <div class="row">
+        <div class="col-md-12">
+          <div id="search_results"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="py-5 text-white bg-white">
+    <div class="container">
+      <div class="row">
+        <div class="col-md-9"> </div>
+        <div class="col-4 col-md-1 align-self-center"> </div>
+        <div class="col-4 col-md-1 align-self-center"> </div>
+        <div class="col-4 col-md-1 align-self-center"> </div>
+      </div>
+      <div class="row">
+        <div class="col-md-6 mt-3 text-center">
+          <img class="img-fluid d-block my-1 mx-auto py-3" src="Logo.jpg"> </div>
+        <div class="col-md-6 mt-3 text-center bg-white">
+          <p class="lead text-center text-dark my-5" style="font-size:160%;"><b class="">More results with faster consultations.</b></p>
+        </div>
+      </div>
+      <div class="row">
+        <div class="col-md-3 mt-3 text-center"> </div>
+      </div>
+      <div class="row">
+        <div class="col-md-6">
+          <p class="my-4 text-dark text-center" style="font-size:160%;"><b class="">Fast Alert Health Monitoring</b></p>
+        </div>
+        <div class="col-md-6">
+          <div class="row">
+            <div class="col-md-4 bg-white"><i class="fa fa-fw fa-3x fa-heartbeat text-center text-dark mx-5 py-4"></i></div>
+            <div class="col-md-4 bg-white"><i class="fa fa-fw fa-3x fa-user-md mx-5 text-dark py-4"></i></div>
+            <div class="col-md-4 bg-white"><i class="fa fa-fw fa-3x fa-universal-access mx-5 text-dark py-4"></i></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="modal" id="EventModal">
+    <div class="modal-dialog modal-lg" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h2 class="text-danger">CEP Event</h2>
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close"> <span aria-hidden="true">×</span> </button>
+        </div>
+        <div class="modal-body">
+          <div class="row">
+            <div class="col-md-12">
+              <div class="row">
+                <div class="col-md-6">
+                  <h5 class="text-dark">Time</h5>
+                </div>
+                <div class="col-md-6">
+                  <h5 class="text-muted" id="time">value</h5>
+                </div>
+              </div>
+              <div class="row">
+                <div class="col-md-6">
+                  <h5 class="text-dark">Category</h5>
+                </div>
+                <div class="col-md-6">
+                  <h5 class="text-muted" id="category">value</h5>
+                </div>
+              </div>
+              <hr>
+              <div class="row">
+                <div class="col-md-12">
+                  <h4 class="text-secondary">User info</h4>
+                </div>
+              </div>
+              <div class="row">
+                <div class="col-md-6">
+                  <h5 class="text-muted" id="name" title="Name">nome</h5>
+                </div>
+                <div class="col-md-6">
+                  <h5 class="text-muted" id="surname" title="Surname">cognome </h5>
+                </div>
+              </div>
+              <div class="row">
+                <div class="col-md-6">
+                  <h5 class="text-muted" id="birthdate" title="Birthdate">data di nascita</h5>
+                </div>
+                <div class="col-md-6">
+                  <h5 class="text-muted" id="gender" title="Gender">sesso </h5>
+                </div>
+                <div class="col-md-6">
+                  <h5 class="text-muted" id="email" title="Email">email</h5>
+                </div>
+                <div class="col-md-6">
+                  <h5 class="text-muted" id="taxcode" title="Tax code">taxcode</h5>
+                </div>
+              </div>
+              <div class="row text-white"> Space </div>
+              <div class="row">
+                <div class="col-md-6">
+                  <h5 class="text-dark">Diseases:</h5>
+                </div>
+                <div class="col-md-6">
+                  <h5 class="text-muted" id="diseases">valore </h5>
+                </div>
+              </div>
+              <hr>
+              <div class="row">
+                <div class="col-md-12">
+                  <h4 class="text-secondary">Event info</h4>
+                </div>
+              </div>
+              <div class="row">
+                <div class="col-md-6">
+                  <h5 class="text-dark">Systolic pressure</h5>
+                </div>
+                <div class="col-md-6">
+                  <h5 class="text-muted" id="systolic">valore </h5>
+                </div>
+              </div>
+              <div class="row">
+                <div class="col-md-6">
+                  <h5 class="text-dark">Diastolic pressure</h5>
+                </div>
+                <div class="col-md-6">
+                  <h5 class="text-muted" id="diastolic">valore </h5>
+                </div>
+              </div>
+              <div class="row">
+                <div class="col-md-6">
+                  <h5 class="text-dark">BPM</h5>
+                </div>
+                <div class="col-md-6">
+                  <h5 class="text-muted" id="bpm">valore </h5>
+                </div>
+              </div>
+              <div class="row" style="display:none" id="extra1">
+                <div class="col-md-6">
+                  <h5 class="text-dark" id="extra_label">contenuto extra</h5>
+                </div>
+                <div class="col-md-6">
+                  <h5 class="text-muted" id="extra">valore </h5>
+                </div>
+              </div>
+              <div class="row" style="display:none" id="extra2">
+                <div class="col-md-6">
+                  <h5 class="text-dark">Saturated hemoglobin [%]</h5>
+                </div>
+                <div class="col-md-6">
+                  <h5 class="text-muted" id="hemo">valore </h5>
+                </div>
+              </div>
+              <div class="row" style="display:none" id="extra3">
+                <div class="col-md-6">
+                  <h5 class="text-dark">Mean saturated hemoglobin [%]</h5>
+                </div>
+                <div class="col-md-6">
+                  <h5 class="text-muted" id="mean_hemo">valore </h5>
+                </div>
+              </div>
+              <hr>
+              <div class="row">
+                <div class="col-md-12">
+                  <h4 class="text-secondary">Write a message to patient and his/her ICE list:</h4>
+                </div>
+                <div class="col-md-12">
+                  <div class="form-group"> <textarea id="form_message" name="message" class="form-control" placeholder="Message for patient " rows="4" required="required" data-error="Please,leave us a message."></textarea>
+                    <div class="help-block with-errors"></div>
+                  </div>
+                </div>
+                <div class="col-md-12">
+                  <input class="btn btn-success btn-send" type="submit" onclick="sendEmail();" value="Send message"> <label id="resultemail" class="px-4 text-success"></label> </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.11.0/umd/popper.min.js" integrity="sha384-b/U6ypiBEHpOf/4+1nzFpr53nxSS+GLCkfwBdFNTxtclqqenISfwAzpKaMNFNmj4" crossorigin="anonymous"></script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta/js/bootstrap.min.js" integrity="sha384-h0AbiXch4ZDo7tp9hKZ4TsHbi047NrKGLO3SEJAg45jXxnGIfYzk4Si90RDIqNm1" crossorigin="anonymous"></script>
+</body>
+
+</html>

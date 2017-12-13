@@ -1,0 +1,426 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css" type="text/css">
+  <link rel="stylesheet" href="https://pingendo.com/assets/bootstrap/bootstrap-4.0.0-beta.1.css" type="text/css">
+  <link rel="stylesheet" type="text/css" href="./bootstrap-multiselect.css">
+  <script src="/src/jquery-3.2.1.min.js"></script>
+  <script src="/src/bootstrap-multiselect.js" type="text/javascript"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-cookie/1.4.1/jquery.cookie.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/2.0.4/socket.io.js"></script>
+  <script src="/src/notification.js"></script>
+  <script src="/src/utility.js"></script>
+  <style>
+    table.table th {
+      color: #ffc107;
+    }
+  </style>
+</head>
+
+<body class="bg-dark" onload="getDoctorSurname();">
+  <nav class="navbar navbar-expand-md bg-primary navbar-dark">
+    <div class="container">
+      <a class="navbar-brand" href="/"><i class="fa d-inline fa-lg fa-briefcase"></i><b>&nbsp;FAHM<br></b></a>
+      <button class="navbar-toggler navbar-toggler-right" type="button" data-toggle="collapse" data-target="#navbar2SupportedContent" aria-controls="navbar2SupportedContent" aria-expanded="false"
+        aria-label="Toggle navigation"> <span class="navbar-toggler-icon"></span> </button>
+      <div class="collapse navbar-collapse text-center justify-content-end" id="navbar2SupportedContent">
+        <div class="btn-group">
+          <button class="btn navbar-btn ml-2 text-white btn-secondary dropdown-toggle" data-toggle="dropdown" style="cursor: pointer"> Menu </button>
+          <div class="dropdown-menu">
+            <a class="dropdown-item" href="#Patient_section">Manage patients</a>
+            <div class="dropdown-divider"></div>
+            <a class="dropdown-item" href="/eventsPage">Last CEP events</a>
+          </div>
+        </div>
+        <div class="btn-group">
+          <button class="btn navbar-btn ml-2 text-white btn-secondary dropdown-toggle" data-toggle="dropdown" style="cursor: pointer" id="welcome_label_doctor">Hi! </button>
+          <div class="dropdown-menu">
+            <a class="dropdown-item" style="cursor: pointer" onclick="showDoctorProfile();"><i class="fa d-inline fa-lg fa-user-circle-o"></i> Show profile</a>
+            <div class="dropdown-divider"></div>
+            <a class="dropdown-item" id="logout_btn" href="/logout"><i class="fa d-inline fa-lg fa-sign-out"></i>&nbsp;Log out</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </nav>
+  <div class="bg-dark" style="background-color:#C0C0C0;">
+    <div class="container">
+      <div class="row">
+        <div class="col-md-3">
+          <img class="img-fluid d-block mx-auto mb-5" src="doctor.png"> </div>
+        <div class="col-md-8">
+          <div class="row">
+            <h1 class="text-white" style="visibility:hidden">space</h1>
+          </div>
+          <div class="row">
+            <h1 class="text-white">Homepage</h1>
+          </div>
+          <div class="row">
+            <h5 class="text-muted py-3">Here you can search for patients, update their conditions, check incoming events and send messages to the concerned patients.</h5>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="py-5">
+    <div class="container">
+      <div class="py-5 bg-dark" id="Patient_section">
+        <!--in style display:none da modificare premendo sul bottone e contemporaneamente svuotando i campi della sezione visualizzata -->
+        <div class="container" id="patientSearch">
+          <div class="row">
+            <div class="col-md-12">
+              <div></div>
+            </div>
+          </div>
+          <div class="row">
+            <div class="col-md-12">
+              <div id="div_del_componente_liquid">
+                <h3 class="text text-muted">Search patient by surname</h3>
+              </div>
+            </div>
+          </div>
+          <div class="row">
+            <div class="col-md-12">
+              <div class="row">
+                <div class="col-md-9">
+                  <input type="text" id="findPatient" class="form-control" required=""> </div>
+                <div class="col-md-3">
+                  <div class="row">
+                    <button class="btn btn-primary" onclick="createPatientsTableFromJSON(document.getElementById('findPatient').value)">Search</button>
+                  </div>
+                </div>
+              </div>
+              <div class="row" style="visibility:hidden">space</div>
+            </div>
+          </div>
+          <div class="row">
+            <div class="col-md-12">
+              <div id="search_results" class="text-warning"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="section">
+    <div class="py-5 text-white bg-white">
+      <div class="container">
+        <div class="row">
+          <div class="col-md-9"> </div>
+          <div class="col-4 col-md-1 align-self-center"> </div>
+          <div class="col-4 col-md-1 align-self-center"> </div>
+          <div class="col-4 col-md-1 align-self-center"> </div>
+        </div>
+        <div class="row">
+          <div class="col-md-6 mt-3 text-center">
+            <img class="img-fluid d-block my-1 mx-auto py-3" src="Logo.jpg"> </div>
+          <div class="col-md-6 mt-3 text-center bg-white">
+            <p class="lead text-center text-dark my-5" style="font-size:160%;"><b class="">More results with faster consultations.</b></p>
+          </div>
+        </div>
+        <div class="row">
+          <div class="col-md-3 mt-3 text-center"> </div>
+        </div>
+        <div class="row">
+          <div class="col-md-6">
+            <p class="my-4 text-dark text-center" style="font-size:160%;"><b class="">Fast Alert Health Monitoring</b></p>
+          </div>
+          <div class="col-md-6">
+            <div class="row">
+              <div class="col-md-4 bg-white"><i class="fa fa-fw fa-3x fa-heartbeat text-center text-dark mx-5 py-4"></i></div>
+              <div class="col-md-4 bg-white"><i class="fa fa-fw fa-3x fa-user-md mx-5 text-dark py-4"></i></div>
+              <div class="col-md-4 bg-white"><i class="fa fa-fw fa-3x fa-universal-access mx-5 text-dark py-4"></i></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="modal" id="updPatModal">
+      <div class="modal-dialog" role="document">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h3 class="modal-title">Update patient's diseases</h3>
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close"> <span aria-hidden="true">×</span> </button>
+          </div>
+          <div class="modal-body">
+            <form id="upd_form" class="" method="post" action="/updatepat">
+              <div class="row">
+                <div class="col-md-4">
+                  <h4 class="text-secondary">Tax code </h4>
+                </div>
+                <div class="col-md-8">
+                  <input type="text" name="pat_taxcode" id="pat_taxcode" readonly=""> </div>
+              </div>
+              <div class="form-group">
+                <h4 class="text-secondary">Pathologies</h4>
+                <h5 class="text">Select the disorders this patient has developed</h5> <select id="updDiseasesPat" name="updDiseasesPat" multiple="multiple">
+                    </select> </div>
+              <button type="submit" class="btn btn-dark">Submit</button>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="modal" id="userInfoModal">
+      <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h3 class="modal-title text-primary text-uppercase" id="nameSurnameVal"></h3>
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close"> <span aria-hidden="true">×</span> </button>
+          </div>
+          <div class="modal-body">
+            <div class="row">
+              <div class="col-md-12">
+                <div class="row">
+                  <div class="col-md-6">
+                    <h4 class="text-secondary">Gender</h4>
+                  </div>
+                  <div class="col-md-6">
+                    <h4 class="text-black" id="genderVal"></h4>
+                  </div>
+                </div>
+                <div class="row">
+                  <div class="col-md-6">
+                    <h4 class="text-secondary">Tax code</h4>
+                  </div>
+                  <div class="col-md-6">
+                    <h4 class="text-black" id="codeVal"></h4>
+                  </div>
+                </div>
+                <div class="row">
+                  <div class="col-md-6">
+                    <h4 class="text-secondary">Birthdate</h4>
+                  </div>
+                  <div class="col-md-6">
+                    <h4 class="text-black" id="birthdateVal"></h4>
+                  </div>
+                </div>
+                <div class="row">
+                  <div class="col-md-6">
+                    <h4 class="text-secondary">Place of birth</h4>
+                  </div>
+                  <div class="col-md-6">
+                    <h4 class="text-black" id="placeVal"></h4>
+                  </div>
+                </div>
+                <div class="row">
+                  <div class="col-md-6">
+                    <h4 class="text-secondary" id="diseasesTitle">Diseases</h4>
+                  </div>
+                  <div class="col-md-6">
+                    <h4 class="text-black" id="diseasesList"></h4>
+                  </div>
+                </div>
+                <div class="row">
+                  <div class="container">
+                    <button class="btn btn-primary" onclick="loadDiseases(true,'updDiseasesPat');" data-target="#updPatModal" data-toggle="modal" aria-label="Close" data-dismiss="modal">Modify patient's diseases</button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="modal" id="DoctorModalProfile">
+      <div class="modal-dialog" role="document">
+        <div class="modal-content">
+          <div class="modal-header" style="background-color:lightgrey;">
+            <h3 class="text-secondary" id="nameSurnameValProfile"></h3>
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close"> <span aria-hidden="true" style="cursor:pointer">×</span> </button>
+          </div>
+          <div class="modal-body" style="background-color:lightgrey;">
+            <div class="row">
+              <div class="col-md-6">
+                <h5 class="text-primary">Iscrizione</h5>
+              </div>
+              <div class="col-md-6">
+                <h5 id="codeValProfile"> </h5>
+              </div>
+            </div>
+            <div class="row">
+              <div class="col-md-6">
+                <h5 class="text-primary">Birthdate</h5>
+              </div>
+              <div class="col-md-6">
+                <h5 id="birthdateValProfile"> </h5>
+              </div>
+            </div>
+            <div class="row">
+              <div class="col-md-6">
+                <h5 class="text-primary">Place of birth</h5>
+              </div>
+              <div class="col-md-6">
+                <h5 id="placeValProfile"></h5>
+              </div>
+            </div>
+            <div class="row">
+              <div class="col-md-6">
+                <h5 class="text-primary" id="specialtiesVal">Specialties</h5>
+              </div>
+              <div class="col-md-6">
+                <h5>
+                  <ul id="specialtiesListProfile"> </ul>
+                </h5>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="modal" id="EventModal">
+      <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h2 class="text-danger">CEP Event</h2>
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close"> <span aria-hidden="true">×</span> </button>
+          </div>
+          <div class="modal-body">
+            <div class="row">
+              <div class="col-md-12">
+                <div class="row">
+                  <div class="col-md-6">
+                    <h5 class="text-black">Time</h5>
+                  </div>
+                  <div class="col-md-6">
+                    <h5 class="text-muted" id="time">value</h5>
+                  </div>
+                </div>
+                <div class="row">
+                  <div class="col-md-6">
+                    <h5 class="text-black">Category</h5>
+                  </div>
+                  <div class="col-md-6">
+                    <h5 class="text-muted" id="category">value</h5>
+                  </div>
+                </div>
+                <hr>
+                <div class="row">
+                  <div class="col-md-12">
+                    <h4 class="text-secondary">User info</h4>
+                  </div>
+                </div>
+                <div class="row">
+                  <div class="col-md-6">
+                    <h5 class="text-muted" id="name" title="Name">nome</h5>
+                  </div>
+                  <div class="col-md-6">
+                    <h5 class="text-muted" id="surname" title="Surname">cognome </h5>
+                  </div>
+                </div>
+                <div class="row">
+                  <div class="col-md-6">
+                    <h5 class="text-muted" id="birthdate" title="Birthdate">data di nascita</h5>
+                  </div>
+                  <div class="col-md-6">
+                    <h5 class="text-muted" id="gender" title="Gender">sesso </h5>
+                  </div>
+                  <div class="col-md-6">
+                    <h5 class="text-muted" id="email" title="Email">email</h5>
+                  </div>
+                  <div class="col-md-6">
+                    <h5 class="text-muted" id="taxcode" title="Tax code">taxcode</h5>
+                  </div>
+                </div>
+                <div class="row text-white"> Space </div>
+                <div class="row">
+                  <div class="col-md-6">
+                    <h5 class="text-dark">Diseases:</h5>
+                  </div>
+                  <div class="col-md-6">
+                    <h5 class="text-muted" id="diseases">valore </h5>
+                  </div>
+                </div>
+                <hr>
+                <div class="row">
+                  <div class="col-md-12">
+                    <h4 class="text-secondary">Event info</h4>
+                  </div>
+                </div>
+                <div class="row">
+                  <div class="col-md-6">
+                    <h5 class="text-dark">Systolic pressure</h5>
+                  </div>
+                  <div class="col-md-6">
+                    <h5 class="text-muted" id="systolic">valore </h5>
+                  </div>
+                </div>
+                <div class="row">
+                  <div class="col-md-6">
+                    <h5 class="text-dark">Diastolic pressure</h5>
+                  </div>
+                  <div class="col-md-6">
+                    <h5 class="text-muted" id="diastolic">valore </h5>
+                  </div>
+                </div>
+                <div class="row">
+                  <div class="col-md-6">
+                    <h5 class="text-dark">BPM</h5>
+                  </div>
+                  <div class="col-md-6">
+                    <h5 class="text-muted" id="bpm">valore </h5>
+                  </div>
+                </div>
+                <div class="row" id="extra1" style="display:none">
+                  <div class="col-md-6">
+                    <h5 class="text-dark" id="extra_label">contenuto extra</h5>
+                  </div>
+                  <div class="col-md-6">
+                    <h5 class="text-muted" id="extra">valore </h5>
+                  </div>
+                </div>
+                <div class="row" id="extra2" style="display:none">
+                  <div class="col-md-6">
+                    <h5 class="text-dark">Saturated hemoglobin [%]</h5>
+                  </div>
+                  <div class="col-md-6">
+                    <h5 class="text-muted" id="hemo">valore </h5>
+                  </div>
+                </div>
+                <div class="row" style="display:none" id="extra3">
+                  <div class="col-md-6">
+                    <h5 class="text-dark">Mean saturated hemoglobin [%]</h5>
+                  </div>
+                  <div class="col-md-6">
+                    <h5 class="text-muted" id="mean_hemo">valore </h5>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <hr>
+            <div class="row">
+              <div class="col-md-12">
+                <h4 class="text-secondary">Write a message to patient and his/her ICE list:</h4>
+              </div>
+              <div class="col-md-12">
+                <div class="form-group"> <textarea id="form_message" name="message" class="form-control" placeholder="Message for patient " rows="4" required="required" data-error="Please,leave us a message."></textarea>
+                  <div class="help-block with-errors"></div>
+                </div>
+              </div>
+              <div class="col-md-12">
+                <input class="btn btn-success btn-send" type="submit" onclick="sendEmail();" value="Send message"> <label id="resultemail" class="px-4 text-success"></label> </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.11.0/umd/popper.min.js" integrity="sha384-b/U6ypiBEHpOf/4+1nzFpr53nxSS+GLCkfwBdFNTxtclqqenISfwAzpKaMNFNmj4" crossorigin="anonymous"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta/js/bootstrap.min.js" integrity="sha384-h0AbiXch4ZDo7tp9hKZ4TsHbi047NrKGLO3SEJAg45jXxnGIfYzk4Si90RDIqNm1" crossorigin="anonymous"></script>
+  </div>
+  <script type="text/javascript">
+    $(document).ready(function() {
+        $('#updDiseasesPat').multiselect({
+            enableFiltering: true,
+            filterBehavior: 'value',
+            includeFilterClearBtn: false,
+            includeSelectAllOption: false,
+            enableCaseInsensitiveFiltering: true
+        });
+    });
+  </script>
+</body>
+
+</html>

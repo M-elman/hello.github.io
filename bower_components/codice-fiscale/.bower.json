@@ -1,0 +1,35 @@
+{
+  "name": "codice-fiscale",
+  "version": "1.0.2",
+  "description": "Javascript object for managing the italian tax code",
+  "main": "dist/CodiceFiscale.js",
+  "license": "MIT",
+  "keywords": [
+    "codice fiscale",
+    "tax code",
+    "italian tax code"
+  ],
+  "moduleType": [
+    "globals"
+  ],
+  "homepage": "https://heavybeard.github.io/codice-fiscale/",
+  "private": false,
+  "ignore": [
+    "/.*",
+    "node_modules"
+  ],
+  "authors": [
+    "Heavybeard <info@heavybeard.it> (http://heavybeard.it)",
+    "zingus (http://zingus.altervista.org/)"
+  ],
+  "_release": "1.0.2",
+  "_resolution": {
+    "type": "version",
+    "tag": "v1.0.2",
+    "commit": "24a7712c8377d25ec61417f20c53172c85bd8e9c"
+  },
+  "_source": "https://github.com/heavybeard/codice-fiscale.git",
+  "_target": "^1.0.2",
+  "_originalSource": "codice-fiscale",
+  "_direct": true
+}
